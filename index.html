@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: white;
+  text-align: center;
+  padding: 90px 15px 20px;
+}
+button {
+  padding: 10px 14px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.start-btn { background: #ff9800; color: black; }
+.point-btn { background: #1db954; color: white; }
+.next-btn { background: #2196f3; color: white; }
+.shuffle-btn { background: #9c27b0; color: white; }
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #0f0f0f;
+  z-index: 20;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+  padding: 10px;
+}
+.turn-display {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.top-controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+input {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+  width: 120px;
+}
+.card {
+  width: 260px;
+  height: 380px;
+  perspective: 1000px;
+  margin: 15px auto;
+}
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
+}
+.card.flip .card-inner { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.card-front {
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card-front img { width: 85%; }
+.card-back {
+  background: linear-gradient(135deg, #7b1fa2, #000);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+}
+.hidden { display: none; }
+.scoreboard { font-size: 14px; }
+.no-anim .card-inner { transition: none !important; }
+.info-text {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="turn-display" id="turnDisplay"></div>
+  <div class="top-controls">
+    <button class="shuffle-btn" onclick="shuffleDeck()">🔀</button>
+    <button class="point-btn" onclick="addSongPoint()">+1 Song</button>
+    <button class="point-btn" onclick="addBandPoint()">+1 Band</button>
+    <button class="point-btn" onclick="addYearPoint()">+1 Year</button>
+    <button class="next-btn" onclick="nextTurn()">Next ➡</button>
+  </div>
+</div>
+
+<div class="setup">
+  <p>Enter up to 6 players</p>
+  <div id="playerInputs"></div>
+  <button class="start-btn" onclick="startGame()">Start Game</button>
+</div>
+
+<div class="game-area hidden" id="gameArea">
+  <div class="card" id="card" onclick="flipCard()">
+    <div class="card-inner">
+      <div class="card-face card-front">
+        <img id="qrImage" src="">
+      </div>
+      <div class="card-face card-back">
+        <p id="song" class="info-text"></p>
+        <p id="band" class="info-text hidden"></p>
+        <p id="year" class="info-text hidden"></p>
+      </div>
+    </div>
+  </div>
+  <div class="scoreboard" id="scoreboard"></div>
+</div>
+
+<script>
+// Example deck - update with your own songs
+const deck = [
+  { qr: "song1.png", song: "Radioactive", band: "Imagine Dragons", year: "2012" },
+  { qr: "song2.png", song: "Party Rock Anthem", band: "LMFAO, Lauren Bennett, GoonRock", year: "2011" },
+  { qr: "song3.png", song: "Rolling in the Deep", band: "Adele", year: "2011" },
+  { qr: "song4.png", song: "Counting Stars", band: "OneRepublic", year: "2014" },
+  { qr: "song5.png", song: "Shape of You", band: "Ed Sheeran", year: "2017" },
+  { qr: "song6.png", song: "Perfect", band: "Ed Sheeran", year: "2017" },
+  { qr: "song7.png", song: "Somebody That I Used To Know", band: "Gotye, Kimbra", year: "2011" },
+  { qr: "song8.png", song: "Dark Horse", band: "Katy Perry, Juicy J", year: "2013" },
+  { qr: "song9.png", song: "Uptown Funk (feat. Bruno Mars)", band: "Mark Ronson, Bruno Mars", year: "2015" },
+  { qr: "song10.png", song: "Ho Hey", band: "The Lumineers", year: "2012" },
+  { qr: "song11.png", song: "Moves Like Jagger - Studio Recording From The Voice Performance", band: "Maroon 5, Christina Aguilera", year: "2010" },
+  { qr: "song12.png", song: "Just the Way You Are", band: "Bruno Mars", year: "2010" },
+  { qr: "song13.png", song: "Wake Me Up", band: "Avicii", year: "2013" },
+  { qr: "song14.png", song: "Without Me", band: "Halsey", year: "2018" },
+  { qr: "song15.png", song: "Closer", band: "The Chainsmokers, Halsey", year: "2016" },
+  { qr: "song16.png", song: "Sail", band: "AWOLNATION", year: "2011" },
+  { qr: "song17.png", song: "Give Me Everything (feat. Nayer)", band: "Pitbull, AFROJACK, Ne-Yo, Nayer", year: "2011" },
+  { qr: "song18.png", song: "Call Me Maybe", band: "Carly Rae Jepsen", year: "2012" },
+  { qr: "song19.png", song: "Thinking out Loud", band: "Ed Sheeran", year: "2014" },
+  { qr: "song20.png", song: "Happier", band: "Marshmello, Bastille", year: "2018" },
+  { qr: "song21.png", song: "CAN'T STOP THE FEELING! (from DreamWorks Animation's TROLLS)", band: "Justin Timberlake", year: "2016" },
+  { qr: "song22.png", song: "SICKO MODE", band: "Travis Scott", year: "2018" },
+  { qr: "song23.png", song: "Hey", band: "Save Me", year: "2010" },
+  { qr: "song24.png", song: "Blurred Lines", band: "Robin Thicke, T.I., Pharrell Williams", year: "2013" },
+  { qr: "song25.png", song: "Thrift Shop (feat. Wanz)", band: "Macklemore & Ryan Lewis, Wanz", year: "2012" },
+  { qr: "song26.png", song: "Don't Let Me Down", band: "The Chainsmokers, Daya", year: "2016" },
+  { qr: "song27.png", song: "Happy - From Despicable Me 2", band: "Pharrell Williams", year: "2014" },
+  { qr: "song28.png", song: "All About That Bass", band: "Meghan Trainor", year: "2015" },
+  { qr: "song29.png", song: "Need You Now", band: "Lady A", year: "2010" },
+  { qr: "song30.png", song: "Some Nights", band: "fun.", year: "2012" },
+  { qr: "song31.png", song: "Shake It Off", band: "Taylor Swift", year: "2014" },
+  { qr: "song32.png", song: "Despacito - Remix", band: "Luis Fonsi, Daddy Yankee, Justin Bieber", year: "2017" },
+  { qr: "song33.png", song: "Royals", band: "Lorde", year: "2013" },
+  { qr: "song34.png", song: "Demons", band: "Imagine Dragons", year: "2012" },
+  { qr: "song35.png", song: "See You Again (feat. Charlie Puth)", band: "Wiz Khalifa, Charlie Puth", year: "2015" },
+  { qr: "song36.png", song: "Believer", band: "Imagine Dragons", year: "2017" },
+  { qr: "song37.png", song: "Cheap Thrills (feat. Sean Paul)", band: "Sia, Sean Paul", year: "2016" },
+  { qr: "song38.png", song: "Stitches", band: "Shawn Mendes", year: "2015" },
+  { qr: "song39.png", song: "Watch Me (Whip / Nae Nae)", band: "Silentó", year: "2015" },
+  { qr: "song40.png", song: "Lights - Single Version", band: "Ellie Goulding", year: "2010" },
+  { qr: "song41.png", song: "High Hopes", band: "Panic! At The Disco", year: "2018" },
+  { qr: "song42.png", song: "Pompeii", band: "Bastille", year: "2013" },
+  { qr: "song43.png", song: "Havana (feat. Young Thug)", band: "Camila Cabello, Young Thug", year: "2018" },
+  { qr: "song44.png", song: "Stressed Out", band: "Twenty One Pilots", year: "2015" },
+  { qr: "song45.png", song: "Firework", band: "Katy Perry", year: "2012" },
+  { qr: "song46.png", song: "We Found Love", band: "Rihanna, Calvin Harris", year: "2011" },
+  { qr: "song47.png", song: "Youngblood", band: "5 Seconds of Summer", year: "2018" },
+  { qr: "song48.png", song: "Mirrors - Radio Edit", band: "Justin Timberlake", year: "2013" },
+  { qr: "song49.png", song: "Sexy And I Know It", band: "LMFAO", year: "2011" },
+  { qr: "song50.png", song: "Chandelier", band: "Sia", year: "2015" },
+  { qr: "song51.png", song: "Love Yourself", band: "Justin Bieber", year: "2015" },
+  { qr: "song52.png", song: "Old Town Road (feat. Billy Ray Cyrus) - Remix", band: "Lil Nas X, Billy Ray Cyrus", year: "2019" },
+  { qr: "song53.png", song: "Someone Like You", band: "Adele", year: "2011" },
+  { qr: "song54.png", song: "Sorry", band: "Justin Bieber", year: "2015" },
+  { qr: "song55.png", song: "Shut Up and Dance", band: "WALK THE MOON", year: "2014" },
+  { qr: "song56.png", song: "Just A Kiss", band: "Lady A", year: "2011" },
+  { qr: "song57.png", song: "Lean On", band: "Major Lazer, DJ Snake, MØ", year: "2015" },
+  { qr: "song58.png", song: "New Rules", band: "Dua Lipa", year: "2017" },
+  { qr: "song59.png", song: "We Are Young (feat. Janelle Monáe)", band: "fun., Janelle Monáe", year: "2012" },
+  { qr: "song60.png", song: "bad guy", band: "WHERE DO WE GO?", year: "2019" },
+  { qr: "song61.png", song: "Rude", band: "MAGIC!", year: "2014" },
+  { qr: "song62.png", song: "Timber", band: "Pitbull, Kesha", year: "2012" },
+  { qr: "song63.png", song: "Can't Feel My Face", band: "The Weeknd", year: "2015" },
+  { qr: "song64.png", song: "Let Her Go", band: "Passenger", year: "2013" },
+  { qr: "song65.png", song: "Sugar", band: "Maroon 5", year: "2014" },
+  { qr: "song66.png", song: "Heathens", band: "Twenty One Pilots", year: "2016" },
+  { qr: "song67.png", song: "Thunder", band: "Imagine Dragons", year: "2017" },
+  { qr: "song68.png", song: "Roar", band: "Katy Perry", year: "2013" },
+  { qr: "song69.png", song: "Can't Hold Us (feat. Ray Dalton)", band: "Macklemore, Ryan Lewis, Macklemore & Ryan Lewis, Ray Dalton", year: "2012" },
+  { qr: "song70.png", song: "Stronger (What Doesn't Kill You)", band: "Kelly Clarkson", year: "2011" },
+  { qr: "song71.png", song: "I Knew You Were Trouble.", band: "Taylor Swift", year: "2012" },
+  { qr: "song72.png", song: "Take Me to Church", band: "Hozier", year: "2014" },
+  { qr: "song73.png", song: "Habits (Stay High)", band: "Tove Lo", year: "2014" },
+  { qr: "song74.png", song: "Wrecking Ball", band: "Miley Cyrus", year: "2013" },
+  { qr: "song75.png", song: "Love The Way You Lie", band: "Eminem, Rihanna", year: "2010" },
+  { qr: "song76.png", song: "I Took A Pill In Ibiza - Seeb Remix", band: "Alone.", year: "2016" },
+  { qr: "song77.png", song: "Set Fire to the Rain", band: "Adele", year: "2011" },
+  { qr: "song78.png", song: "TiK ToK", band: "Kesha", year: "2010" },
+  { qr: "song79.png", song: "Work from Home (feat. Ty Dolla $ign)", band: "Fifth Harmony, Ty Dolla $ign", year: "2016" },
+  { qr: "song80.png", song: "Raise Your Glass", band: "P!nk", year: "2010" },
+  { qr: "song81.png", song: "California Gurls", band: "Katy Perry, Snoop Dogg", year: "2012" },
+  { qr: "song82.png", song: "Good Life", band: "OneRepublic", year: "2009" },
+  { qr: "song83.png", song: "Starships", band: "Nicki Minaj", year: "2011" },
+  { qr: "song84.png", song: "Haven't Met You Yet", band: "Michael Bublé", year: "2009" },
+  { qr: "song85.png", song: "Brave", band: "Sara Bareilles", year: "2013" },
+  { qr: "song86.png", song: "Titanium (feat. Sia)", band: "David Guetta, Sia", year: "2011" },
+  { qr: "song87.png", song: "Secrets", band: "OneRepublic", year: "2009" },
+  { qr: "song88.png", song: "Love You Like A Love Song", band: "Selena Gomez & The Scene", year: "2011" },
+  { qr: "song89.png", song: "Bad At Love", band: "Halsey", year: "2017" },
+  { qr: "song90.png", song: "Don't You Worry Child - Radio Edit", band: "Swedish House Mafia, John Martin", year: "2012" },
+  { qr: "song91.png", song: "Sweet but Psycho", band: "Ava Max", year: "2018" },
+  { qr: "song92.png", song: "Burn", band: "Ellie Goulding", year: "2013" },
+  { qr: "song93.png", song: "I Gotta Feeling", band: "Black Eyed Peas", year: "2009" },
+  { qr: "song94.png", song: "We Can't Stop", band: "Miley Cyrus", year: "2013" },
+  { qr: "song95.png", song: "Someone You Loved", band: "Lewis Capaldi", year: "2019" },
+  { qr: "song96.png", song: "Hello", band: "Adele", year: "2016" },
+  { qr: "song97.png", song: "Señorita", band: "Shawn Mendes, Camila Cabello", year: "2019" },
+  { qr: "song98.png", song: "Ex's & Oh's", band: "Elle King", year: "2015" },
+  { qr: "song99.png", song: "Say Something", band: "A Great Big World, Christina Aguilera", year: "2014" },
+  { qr: "song100.png", song: "Your Love Is My Drug", band: "Kesha", year: "2010" },
+  { qr: "song101.png", song: "Rather Be (feat. Jess Glynne)", band: "Clean Bandit, Jess Glynne", year: "2014" },
+  { qr: "song102.png", song: "Issues", band: "Julia Michaels", year: "2017" },
+  { qr: "song103.png", song: "Boom Clap", band: "Charli xcx", year: "2014" },
+  { qr: "song104.png", song: "Sweet Nothing (feat. Florence Welch)", band: "Calvin Harris, Florence Welch", year: "2012" },
+  { qr: "song105.png", song: "Bad (feat. Tiara Thomas)", band: "Wale, Tiara Thomas", year: "2013" },
+  { qr: "song106.png", song: "Elastic Heart", band: "Sia", year: "2015" }
+];
+
+let players = [];
+let scores = {};
+let currentPlayerIndex = 0;
+let currentCardIndex = 0;
+let revealStep = 0;
+let roundNumber = 1;
+let questionNumber = 1;
+
+for (let i = 1; i <= 6; i++) {
+  document.getElementById("playerInputs").innerHTML +=
+    `<input type="text" id="p${i}" placeholder="Player ${i}">`;
+}
+
+function playSound(src) {
+  const sound = new Audio(src);
+  sound.volume = 0.6; // normalized volume
+  sound.play().catch(() => {});
+}
+
+function startGame() {
+  players = [];
+  scores = {};
+  roundNumber = 1;
+  questionNumber = 1;
+  currentPlayerIndex = 0;
+
+  for (let i = 1; i <= 6; i++) {
+    let name = document.getElementById("p" + i).value.trim();
+    if (name) players.push(name);
+  }
+  if (players.length === 0) players.push("Player 1");
+
+  players.forEach(p => scores[p] = 0);
+
+  document.querySelector(".setup").classList.add("hidden");
+  document.getElementById("gameArea").classList.remove("hidden");
+
+  shuffleDeck();
+  updateTurnDisplay();
+  updateScoreboard();
+  loadCard();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  currentCardIndex = 0;
+}
+
+function loadCard() {
+  const cardEl = document.getElementById("card");
+  cardEl.classList.add("no-anim");
+  cardEl.classList.remove("flip");
+  revealStep = 0;
+  void cardEl.offsetWidth;
+
+  const card = deck[currentCardIndex];
+  document.getElementById("qrImage").src = card.qr;
+  document.getElementById("song").textContent = card.song;
+  document.getElementById("band").textContent = card.band;
+  document.getElementById("year").textContent = card.year;
+  
+  // Hide band and year initially
+  document.getElementById("band").classList.add("hidden");
+  document.getElementById("year").classList.add("hidden");
+
+  cardEl.classList.remove("no-anim");
+}
+
+function flipCard() {
+  const card = document.getElementById("card");
+  const band = document.getElementById("band");
+  const year = document.getElementById("year");
+
+  if (revealStep === 0) {
+    // First click: flip to show song
+    card.classList.add("flip");
+    revealStep = 1;
+  } else if (revealStep === 1) {
+    // Second click: reveal band
+    band.classList.remove("hidden");
+    revealStep = 2;
+  } else if (revealStep === 2) {
+    // Third click: reveal year
+    year.classList.remove("hidden");
+    revealStep = 3;
+  }
+}
+
+function addSongPoint() {
+  scores[players[currentPlayerIndex]]++;
+  updateScoreboard();
+  playSound("Nice.mp3");
+}
+
+function addBandPoint() {
+  scores[players[currentPlayerIndex]]++;
+  updateScoreboard();
+  playSound("Yes.mp3");
+}
+
+function addYearPoint() {
+  scores[players[currentPlayerIndex]]++;
+  updateScoreboard();
+  playSound("Awesome.mp3");
+}
+
+function nextTurn() {
+  currentPlayerIndex++;
+  if (currentPlayerIndex >= players.length) {
+    currentPlayerIndex = 0;
+    roundNumber++;
+  }
+  questionNumber++;
+  currentCardIndex = (currentCardIndex + 1) % deck.length;
+  updateTurnDisplay();
+  loadCard();
+}
+
+function updateTurnDisplay() {
+  document.getElementById("turnDisplay").innerHTML =
+    `Round ${roundNumber} — Q${questionNumber}<br><strong>${players[currentPlayerIndex]}'s Turn</strong>`;
+}
+
+function updateScoreboard() {
+  let board = "<h3>Scoreboard</h3>";
+  for (let p of players) {
+    board += p + ": " + scores[p] + "<br>";
+  }
+  document.getElementById("scoreboard").innerHTML = board;
+}
+</script>
+</body>
+</html>
