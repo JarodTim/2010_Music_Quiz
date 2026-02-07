@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+f<!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,7 +107,7 @@ input {
   <div class="top-controls">
     <button class="shuffle-btn" onclick="shuffleDeck()">🔀</button>
     <button class="point-btn" onclick="addSongPoint()">+1 Song</button>
-    <button class="point-btn" onclick="addBandPoint()">+1 Band</button>
+    <button class="point-btn" onclick="addArtistPoint()">+1 Artist</button>
     <button class="point-btn" onclick="addYearPoint()">+1 Year</button>
     <button class="next-btn" onclick="nextTurn()">Next ➡</button>
   </div>
@@ -127,7 +127,7 @@ input {
       </div>
       <div class="card-face card-back">
         <p id="song" class="info-text"></p>
-        <p id="band" class="info-text hidden"></p>
+        <p id="Artist" class="info-text hidden"></p>
         <p id="year" class="info-text hidden"></p>
       </div>
     </div>
@@ -138,112 +138,112 @@ input {
 <script>
 // Example deck - update with your own songs
 const deck = [
-  { qr: "song1.png", song: "Radioactive", band: "Imagine Dragons", year: "2012" },
-  { qr: "song2.png", song: "Party Rock Anthem", band: "LMFAO, Lauren Bennett, GoonRock", year: "2011" },
-  { qr: "song3.png", song: "Rolling in the Deep", band: "Adele", year: "2011" },
-  { qr: "song4.png", song: "Counting Stars", band: "OneRepublic", year: "2014" },
-  { qr: "song5.png", song: "Shape of You", band: "Ed Sheeran", year: "2017" },
-  { qr: "song6.png", song: "Perfect", band: "Ed Sheeran", year: "2017" },
-  { qr: "song7.png", song: "Somebody That I Used To Know", band: "Gotye, Kimbra", year: "2011" },
-  { qr: "song8.png", song: "Dark Horse", band: "Katy Perry, Juicy J", year: "2013" },
-  { qr: "song9.png", song: "Uptown Funk", band: "Mark Ronson, Bruno Mars", year: "2015" },
-  { qr: "song10.png", song: "Ho Hey", band: "The Lumineers", year: "2012" },
-  { qr: "song11.png", song: "Moves Like Jagger", band: "Maroon 5, Christina Aguilera", year: "2010" },
-  { qr: "song12.png", song: "Just the Way You Are", band: "Bruno Mars", year: "2010" },
-  { qr: "song13.png", song: "Wake Me Up", band: "Avicii", year: "2013" },
-  { qr: "song14.png", song: "Without Me", band: "Halsey", year: "2018" },
-  { qr: "song15.png", song: "Closer", band: "The Chainsmokers, Halsey", year: "2016" },
-  { qr: "song16.png", song: "Sail", band: "AWOLNATION", year: "2011" },
-  { qr: "song17.png", song: "Give Me Everything", band: "Pitbull, AFROJACK, Ne-Yo, Nayer", year: "2011" },
-  { qr: "song18.png", song: "Call Me Maybe", band: "Carly Rae Jepsen", year: "2012" },
-  { qr: "song19.png", song: "Thinking out Loud", band: "Ed Sheeran", year: "2014" },
-  { qr: "song20.png", song: "Happier", band: "Marshmello, Bastille", year: "2018" },
-  { qr: "song21.png", song: "CAN'T STOP THE FEELING!", band: "Justin Timberlake", year: "2016" },
-  { qr: "song22.png", song: "SICKO MODE", band: "Travis Scott", year: "2018" },
-  { qr: "song23.png", song: "Hey", band: "Save Me", year: "2010" },
-  { qr: "song24.png", song: "Blurred Lines", band: "Robin Thicke, T.I., Pharrell Williams", year: "2013" },
-  { qr: "song25.png", song: "Thrift Shop", band: "Macklemore & Ryan Lewis, Wanz", year: "2012" },
-  { qr: "song26.png", song: "Don't Let Me Down", band: "The Chainsmokers, Daya", year: "2016" },
-  { qr: "song27.png", song: "Happy", band: "Pharrell Williams", year: "2014" },
-  { qr: "song28.png", song: "All About That Bass", band: "Meghan Trainor", year: "2015" },
-  { qr: "song29.png", song: "Need You Now", band: "Lady A", year: "2010" },
-  { qr: "song30.png", song: "Some Nights", band: "fun.", year: "2012" },
-  { qr: "song31.png", song: "Shake It Off", band: "Taylor Swift", year: "2014" },
-  { qr: "song32.png", song: "Despacito", band: "Luis Fonsi, Daddy Yankee, Justin Bieber", year: "2017" },
-  { qr: "song33.png", song: "Royals", band: "Lorde", year: "2013" },
-  { qr: "song34.png", song: "Demons", band: "Imagine Dragons", year: "2012" },
-  { qr: "song35.png", song: "See You Again", band: "Wiz Khalifa, Charlie Puth", year: "2015" },
-  { qr: "song36.png", song: "Believer", band: "Imagine Dragons", year: "2017" },
-  { qr: "song37.png", song: "Cheap Thrills", band: "Sia, Sean Paul", year: "2016" },
-  { qr: "song38.png", song: "Stitches", band: "Shawn Mendes", year: "2015" },
-  { qr: "song39.png", song: "Watch Me (Whip / Nae Nae)", band: "Silentó", year: "2015" },
-  { qr: "song40.png", song: "Lights", band: "Ellie Goulding", year: "2010" },
-  { qr: "song41.png", song: "High Hopes", band: "Panic! At The Disco", year: "2018" },
-  { qr: "song42.png", song: "Pompeii", band: "Bastille", year: "2013" },
-  { qr: "song43.png", song: "Havana", band: "Camila Cabello, Young Thug", year: "2018" },
-  { qr: "song44.png", song: "Stressed Out", band: "Twenty One Pilots", year: "2015" },
-  { qr: "song45.png", song: "Firework", band: "Katy Perry", year: "2012" },
-  { qr: "song46.png", song: "We Found Love", band: "Rihanna, Calvin Harris", year: "2011" },
-  { qr: "song47.png", song: "Youngblood", band: "5 Seconds of Summer", year: "2018" },
-  { qr: "song48.png", song: "Mirrors", band: "Justin Timberlake", year: "2013" },
-  { qr: "song49.png", song: "Sexy And I Know It", band: "LMFAO", year: "2011" },
-  { qr: "song50.png", song: "Chandelier", band: "Sia", year: "2015" },
-  { qr: "song51.png", song: "Love Yourself", band: "Justin Bieber", year: "2015" },
-  { qr: "song52.png", song: "Old Town Road", band: "Lil Nas X, Billy Ray Cyrus", year: "2019" },
-  { qr: "song53.png", song: "Someone Like You", band: "Adele", year: "2011" },
-  { qr: "song54.png", song: "Sorry", band: "Justin Bieber", year: "2015" },
-  { qr: "song55.png", song: "Shut Up and Dance", band: "WALK THE MOON", year: "2014" },
-  { qr: "song56.png", song: "Just A Kiss", band: "Lady A", year: "2011" },
-  { qr: "song57.png", song: "Lean On", band: "Major Lazer, DJ Snake, MØ", year: "2015" },
-  { qr: "song58.png", song: "New Rules", band: "Dua Lipa", year: "2017" },
-  { qr: "song59.png", song: "We Are Young", band: "fun., Janelle Monáe", year: "2012" },
-  { qr: "song60.png", song: "bad guy", band: "Billie Eilish", year: "2019" },
-  { qr: "song61.png", song: "Rude", band: "MAGIC!", year: "2014" },
-  { qr: "song62.png", song: "Timber", band: "Pitbull, Kesha", year: "2012" },
-  { qr: "song63.png", song: "Can't Feel My Face", band: "The Weeknd", year: "2015" },
-  { qr: "song64.png", song: "Let Her Go", band: "Passenger", year: "2013" },
-  { qr: "song65.png", song: "Sugar", band: "Maroon 5", year: "2014" },
-  { qr: "song66.png", song: "Heathens", band: "Twenty One Pilots", year: "2016" },
-  { qr: "song67.png", song: "Thunder", band: "Imagine Dragons", year: "2017" },
-  { qr: "song68.png", song: "Roar", band: "Katy Perry", year: "2013" },
-  { qr: "song69.png", song: "Can't Hold Us", band: "Macklemore & Ryan Lewis, Ray Dalton", year: "2012" },
-  { qr: "song70.png", song: "Stronger", band: "Kelly Clarkson", year: "2011" },
-  { qr: "song71.png", song: "I Knew You Were Trouble.", band: "Taylor Swift", year: "2012" },
-  { qr: "song72.png", song: "Take Me to Church", band: "Hozier", year: "2014" },
-  { qr: "song73.png", song: "Habits", band: "Tove Lo", year: "2014" },
-  { qr: "song74.png", song: "Wrecking Ball", band: "Miley Cyrus", year: "2013" },
-  { qr: "song75.png", song: "Love The Way You Lie", band: "Eminem, Rihanna", year: "2010" },
-  { qr: "song76.png", song: "I Took A Pill In Ibiza", band: "Mike Posner", year: "2016" },
-  { qr: "song77.png", song: "Set Fire to the Rain", band: "Adele", year: "2011" },
-  { qr: "song78.png", song: "TiK ToK", band: "Kesha", year: "2010" },
-  { qr: "song79.png", song: "Work from Home", band: "Fifth Harmony, Ty Dolla $ign", year: "2016" },
-  { qr: "song80.png", song: "Raise Your Glass", band: "P!nk", year: "2010" },
-  { qr: "song81.png", song: "California Gurls", band: "Katy Perry, Snoop Dogg", year: "2012" },
-  { qr: "song82.png", song: "Good Life", band: "OneRepublic", year: "2009" },
-  { qr: "song83.png", song: "Starships", band: "Nicki Minaj", year: "2011" },
-  { qr: "song84.png", song: "Haven't Met You Yet", band: "Michael Bublé", year: "2009" },
-  { qr: "song85.png", song: "Brave", band: "Sara Bareilles", year: "2013" },
-  { qr: "song86.png", song: "Titanium", band: "David Guetta, Sia", year: "2011" },
-  { qr: "song87.png", song: "Secrets", band: "OneRepublic", year: "2009" },
-  { qr: "song88.png", song: "Love You Like A Love Song", band: "Selena Gomez & The Scene", year: "2011" },
-  { qr: "song89.png", song: "Bad At Love", band: "Halsey", year: "2017" },
-  { qr: "song90.png", song: "Don't You Worry Child", band: "Swedish House Mafia, John Martin", year: "2012" },
-  { qr: "song91.png", song: "Sweet but Psycho", band: "Ava Max", year: "2018" },
-  { qr: "song92.png", song: "Burn", band: "Ellie Goulding", year: "2013" },
-  { qr: "song93.png", song: "I Gotta Feeling", band: "Black Eyed Peas", year: "2009" },
-  { qr: "song94.png", song: "We Can't Stop", band: "Miley Cyrus", year: "2013" },
-  { qr: "song95.png", song: "Someone You Loved", band: "Lewis Capaldi", year: "2019" },
-  { qr: "song96.png", song: "Hello", band: "Adele", year: "2016" },
-  { qr: "song97.png", song: "Señorita", band: "Shawn Mendes, Camila Cabello", year: "2019" },
-  { qr: "song98.png", song: "Ex's & Oh's", band: "Elle King", year: "2015" },
-  { qr: "song99.png", song: "Say Something", band: "A Great Big World, Christina Aguilera", year: "2014" },
-  { qr: "song100.png", song: "Your Love Is My Drug", band: "Kesha", year: "2010" },
-  { qr: "song101.png", song: "Rather Be", band: "Clean Bandit, Jess Glynne", year: "2014" },
-  { qr: "song102.png", song: "Issues", band: "Julia Michaels", year: "2017" },
-  { qr: "song103.png", song: "Boom Clap", band: "Charli xcx", year: "2014" },
-  { qr: "song104.png", song: "Sweet Nothing", band: "Calvin Harris, Florence Welch", year: "2012" },
-  { qr: "song105.png", song: "Bad", band: "Wale, Tiara Thomas", year: "2013" },
-  { qr: "song106.png", song: "Elastic Heart", band: "Sia", year: "2015" }
+  { qr: "song1.png", song: "Radioactive", Artist: "Imagine Dragons", year: "2012" },
+  { qr: "song2.png", song: "Party Rock Anthem", Artist: "LMFAO, Lauren Bennett, GoonRock", year: "2011" },
+  { qr: "song3.png", song: "Rolling in the Deep", Artist: "Adele", year: "2011" },
+  { qr: "song4.png", song: "Counting Stars", Artist: "OneRepublic", year: "2014" },
+  { qr: "song5.png", song: "Shape of You", Artist: "Ed Sheeran", year: "2017" },
+  { qr: "song6.png", song: "Perfect", Artist: "Ed Sheeran", year: "2017" },
+  { qr: "song7.png", song: "Somebody That I Used To Know", Artist: "Gotye, Kimbra", year: "2011" },
+  { qr: "song8.png", song: "Dark Horse", Artist: "Katy Perry, Juicy J", year: "2013" },
+  { qr: "song9.png", song: "Uptown Funk", Artist: "Mark Ronson, Bruno Mars", year: "2015" },
+  { qr: "song10.png", song: "Ho Hey", Artist: "The Lumineers", year: "2012" },
+  { qr: "song11.png", song: "Moves Like Jagger", Artist: "Maroon 5, Christina Aguilera", year: "2010" },
+  { qr: "song12.png", song: "Just the Way You Are", Artist: "Bruno Mars", year: "2010" },
+  { qr: "song13.png", song: "Wake Me Up", Artist: "Avicii", year: "2013" },
+  { qr: "song14.png", song: "Without Me", Artist: "Halsey", year: "2018" },
+  { qr: "song15.png", song: "Closer", Artist: "The Chainsmokers, Halsey", year: "2016" },
+  { qr: "song16.png", song: "Sail", Artist: "AWOLNATION", year: "2011" },
+  { qr: "song17.png", song: "Give Me Everything", Artist: "Pitbull, AFROJACK, Ne-Yo, Nayer", year: "2011" },
+  { qr: "song18.png", song: "Call Me Maybe", Artist: "Carly Rae Jepsen", year: "2012" },
+  { qr: "song19.png", song: "Thinking out Loud", Artist: "Ed Sheeran", year: "2014" },
+  { qr: "song20.png", song: "Happier", Artist: "Marshmello, Bastille", year: "2018" },
+  { qr: "song21.png", song: "CAN'T STOP THE FEELING!", Artist: "Justin Timberlake", year: "2016" },
+  { qr: "song22.png", song: "SICKO MODE", Artist: "Travis Scott", year: "2018" },
+  { qr: "song23.png", song: "Hey", Artist: "Save Me", year: "2010" },
+  { qr: "song24.png", song: "Blurred Lines", Artist: "Robin Thicke, T.I., Pharrell Williams", year: "2013" },
+  { qr: "song25.png", song: "Thrift Shop", Artist: "Macklemore & Ryan Lewis, Wanz", year: "2012" },
+  { qr: "song26.png", song: "Don't Let Me Down", Artist: "The Chainsmokers, Daya", year: "2016" },
+  { qr: "song27.png", song: "Happy", Artist: "Pharrell Williams", year: "2014" },
+  { qr: "song28.png", song: "All About That Bass", Artist: "Meghan Trainor", year: "2015" },
+  { qr: "song29.png", song: "Need You Now", Artist: "Lady A", year: "2010" },
+  { qr: "song30.png", song: "Some Nights", Artist: "fun.", year: "2012" },
+  { qr: "song31.png", song: "Shake It Off", Artist: "Taylor Swift", year: "2014" },
+  { qr: "song32.png", song: "Despacito", Artist: "Luis Fonsi, Daddy Yankee, Justin Bieber", year: "2017" },
+  { qr: "song33.png", song: "Royals", Artist: "Lorde", year: "2013" },
+  { qr: "song34.png", song: "Demons", Artist: "Imagine Dragons", year: "2012" },
+  { qr: "song35.png", song: "See You Again", Artist: "Wiz Khalifa, Charlie Puth", year: "2015" },
+  { qr: "song36.png", song: "Believer", Artist: "Imagine Dragons", year: "2017" },
+  { qr: "song37.png", song: "Cheap Thrills", Artist: "Sia, Sean Paul", year: "2016" },
+  { qr: "song38.png", song: "Stitches", Artist: "Shawn Mendes", year: "2015" },
+  { qr: "song39.png", song: "Watch Me (Whip / Nae Nae)", Artist: "Silentó", year: "2015" },
+  { qr: "song40.png", song: "Lights", Artist: "Ellie Goulding", year: "2010" },
+  { qr: "song41.png", song: "High Hopes", Artist: "Panic! At The Disco", year: "2018" },
+  { qr: "song42.png", song: "Pompeii", Artist: "Bastille", year: "2013" },
+  { qr: "song43.png", song: "Havana", Artist: "Camila Cabello, Young Thug", year: "2018" },
+  { qr: "song44.png", song: "Stressed Out", Artist: "Twenty One Pilots", year: "2015" },
+  { qr: "song45.png", song: "Firework", Artist: "Katy Perry", year: "2012" },
+  { qr: "song46.png", song: "We Found Love", Artist: "Rihanna, Calvin Harris", year: "2011" },
+  { qr: "song47.png", song: "Youngblood", Artist: "5 Seconds of Summer", year: "2018" },
+  { qr: "song48.png", song: "Mirrors", Artist: "Justin Timberlake", year: "2013" },
+  { qr: "song49.png", song: "Sexy And I Know It", Artist: "LMFAO", year: "2011" },
+  { qr: "song50.png", song: "Chandelier", Artist: "Sia", year: "2015" },
+  { qr: "song51.png", song: "Love Yourself", Artist: "Justin Bieber", year: "2015" },
+  { qr: "song52.png", song: "Old Town Road", Artist: "Lil Nas X, Billy Ray Cyrus", year: "2019" },
+  { qr: "song53.png", song: "Someone Like You", Artist: "Adele", year: "2011" },
+  { qr: "song54.png", song: "Sorry", Artist: "Justin Bieber", year: "2015" },
+  { qr: "song55.png", song: "Shut Up and Dance", Artist: "WALK THE MOON", year: "2014" },
+  { qr: "song56.png", song: "Just A Kiss", Artist: "Lady A", year: "2011" },
+  { qr: "song57.png", song: "Lean On", Artist: "Major Lazer, DJ Snake, MØ", year: "2015" },
+  { qr: "song58.png", song: "New Rules", Artist: "Dua Lipa", year: "2017" },
+  { qr: "song59.png", song: "We Are Young", Artist: "fun., Janelle Monáe", year: "2012" },
+  { qr: "song60.png", song: "bad guy", Artist: "Billie Eilish", year: "2019" },
+  { qr: "song61.png", song: "Rude", Artist: "MAGIC!", year: "2014" },
+  { qr: "song62.png", song: "Timber", Artist: "Pitbull, Kesha", year: "2012" },
+  { qr: "song63.png", song: "Can't Feel My Face", Artist: "The Weeknd", year: "2015" },
+  { qr: "song64.png", song: "Let Her Go", Artist: "Passenger", year: "2013" },
+  { qr: "song65.png", song: "Sugar", Artist: "Maroon 5", year: "2014" },
+  { qr: "song66.png", song: "Heathens", Artist: "Twenty One Pilots", year: "2016" },
+  { qr: "song67.png", song: "Thunder", Artist: "Imagine Dragons", year: "2017" },
+  { qr: "song68.png", song: "Roar", Artist: "Katy Perry", year: "2013" },
+  { qr: "song69.png", song: "Can't Hold Us", Artist: "Macklemore & Ryan Lewis, Ray Dalton", year: "2012" },
+  { qr: "song70.png", song: "Stronger", Artist: "Kelly Clarkson", year: "2011" },
+  { qr: "song71.png", song: "I Knew You Were Trouble.", Artist: "Taylor Swift", year: "2012" },
+  { qr: "song72.png", song: "Take Me to Church", Artist: "Hozier", year: "2014" },
+  { qr: "song73.png", song: "Habits", Artist: "Tove Lo", year: "2014" },
+  { qr: "song74.png", song: "Wrecking Ball", Artist: "Miley Cyrus", year: "2013" },
+  { qr: "song75.png", song: "Love The Way You Lie", Artist: "Eminem, Rihanna", year: "2010" },
+  { qr: "song76.png", song: "I Took A Pill In Ibiza", Artist: "Mike Posner", year: "2016" },
+  { qr: "song77.png", song: "Set Fire to the Rain", Artist: "Adele", year: "2011" },
+  { qr: "song78.png", song: "TiK ToK", Artist: "Kesha", year: "2010" },
+  { qr: "song79.png", song: "Work from Home", Artist: "Fifth Harmony, Ty Dolla $ign", year: "2016" },
+  { qr: "song80.png", song: "Raise Your Glass", Artist: "P!nk", year: "2010" },
+  { qr: "song81.png", song: "California Gurls", Artist: "Katy Perry, Snoop Dogg", year: "2012" },
+  { qr: "song82.png", song: "Good Life", Artist: "OneRepublic", year: "2009" },
+  { qr: "song83.png", song: "Starships", Artist: "Nicki Minaj", year: "2011" },
+  { qr: "song84.png", song: "Haven't Met You Yet", Artist: "Michael Bublé", year: "2009" },
+  { qr: "song85.png", song: "Brave", Artist: "Sara Bareilles", year: "2013" },
+  { qr: "song86.png", song: "Titanium", Artist: "David Guetta, Sia", year: "2011" },
+  { qr: "song87.png", song: "Secrets", Artist: "OneRepublic", year: "2009" },
+  { qr: "song88.png", song: "Love You Like A Love Song", Artist: "Selena Gomez & The Scene", year: "2011" },
+  { qr: "song89.png", song: "Bad At Love", Artist: "Halsey", year: "2017" },
+  { qr: "song90.png", song: "Don't You Worry Child", Artist: "Swedish House Mafia, John Martin", year: "2012" },
+  { qr: "song91.png", song: "Sweet but Psycho", Artist: "Ava Max", year: "2018" },
+  { qr: "song92.png", song: "Burn", Artist: "Ellie Goulding", year: "2013" },
+  { qr: "song93.png", song: "I Gotta Feeling", Artist: "Black Eyed Peas", year: "2009" },
+  { qr: "song94.png", song: "We Can't Stop", Artist: "Miley Cyrus", year: "2013" },
+  { qr: "song95.png", song: "Someone You Loved", Artist: "Lewis Capaldi", year: "2019" },
+  { qr: "song96.png", song: "Hello", Artist: "Adele", year: "2016" },
+  { qr: "song97.png", song: "Señorita", Artist: "Shawn Mendes, Camila Cabello", year: "2019" },
+  { qr: "song98.png", song: "Ex's & Oh's", Artist: "Elle King", year: "2015" },
+  { qr: "song99.png", song: "Say Something", Artist: "A Great Big World, Christina Aguilera", year: "2014" },
+  { qr: "song100.png", song: "Your Love Is My Drug", Artist: "Kesha", year: "2010" },
+  { qr: "song101.png", song: "Rather Be", Artist: "Clean Artistit, Jess Glynne", year: "2014" },
+  { qr: "song102.png", song: "Issues", Artist: "Julia Michaels", year: "2017" },
+  { qr: "song103.png", song: "Boom Clap", Artist: "Charli xcx", year: "2014" },
+  { qr: "song104.png", song: "Sweet Nothing", Artist: "Calvin Harris, Florence Welch", year: "2012" },
+  { qr: "song105.png", song: "Bad", Artist: "Wale, Tiara Thomas", year: "2013" },
+  { qr: "song106.png", song: "Elastic Heart", Artist: "Sia", year: "2015" }
 ];
 
 let players = [];
@@ -307,11 +307,11 @@ function loadCard() {
   const card = deck[currentCardIndex];
   document.getElementById("qrImage").src = card.qr;
   document.getElementById("song").textContent = card.song;
-  document.getElementById("band").textContent = card.band;
+  document.getElementById("Artist").textContent = card.Artist;
   document.getElementById("year").textContent = card.year;
   
-  // Hide band and year initially
-  document.getElementById("band").classList.add("hidden");
+  // Hide Artist and year initially
+  document.getElementById("Artist").classList.add("hidden");
   document.getElementById("year").classList.add("hidden");
 
   cardEl.classList.remove("no-anim");
@@ -319,7 +319,7 @@ function loadCard() {
 
 function flipCard() {
   const card = document.getElementById("card");
-  const band = document.getElementById("band");
+  const Artist = document.getElementById("Artist");
   const year = document.getElementById("year");
 
   if (revealStep === 0) {
@@ -327,8 +327,8 @@ function flipCard() {
     card.classList.add("flip");
     revealStep = 1;
   } else if (revealStep === 1) {
-    // Second click: reveal band
-    band.classList.remove("hidden");
+    // Second click: reveal Artist
+    Artist.classList.remove("hidden");
     revealStep = 2;
   } else if (revealStep === 2) {
     // Third click: reveal year
@@ -343,7 +343,7 @@ function addSongPoint() {
   playSound("Nice.mp3");
 }
 
-function addBandPoint() {
+function addArtistPoint() {
   scores[players[currentPlayerIndex]]++;
   updateScoreboard();
   playSound("Yes.mp3");
